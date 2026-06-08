@@ -143,6 +143,19 @@ enum WebhookEventStatus {
   ABANDONED
 }
 
+enum SubscriptionStatus {
+  ACTIVE
+  SUSPENDED
+  EXPIRED
+  CANCELLED
+}
+
+enum PlanType {
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
 // ─────────────────────────────────────────────
 // TENANTS
 // ─────────────────────────────────────────────
@@ -170,6 +183,7 @@ model Tenant {
   enrolments          Enrolment[]
   apiKeys             ApiKey[]
   webhookSubscriptions WebhookSubscription[]
+  subscriptions        Subscription[]
   auditLogs           AuditLog[]
   broadcastMessages   BroadcastMessage[]
   refreshTokens       RefreshToken[]
@@ -744,4 +758,40 @@ model PlatformAdmin {
 
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+
+model Plan {
+  id              String   @id @default(cuid())
+  name            String
+  code            PlanType @unique
+
+  maxUsers        Int
+  maxLocations    Int
+  maxParticipants Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  subscriptions Subscription[]
+}
+
+model Subscription {
+  id          String @id @default(cuid())
+
+  tenantId    String
+  tenant      Tenant @relation(fields:[tenantId], references:[id])
+
+  planId      String
+  plan         Plan @relation(fields:[planId], references:[id])
+
+  status      SubscriptionStatus
+
+  startDate   DateTime
+  endDate     DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
 }

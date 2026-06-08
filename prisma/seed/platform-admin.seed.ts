@@ -14,20 +14,24 @@ export async function seedPlatformAdmin() {
   // Hash the password with 12 rounds of bcrypt
   const passwordHash = await bcrypt.hash(plainPassword, 12);
 
-  const admin = await (prisma as any).platformAdmin.upsert({
-    where: { email },
-    update: {},
-    create: {
-      email,
-      passwordHash,
-      firstName: 'Platform',
-      lastName: 'Owner',
-      role: 'OWNER',
-      isActive: true,
-    },
-  });
+  try {
+    const admin = await (prisma as any).platformAdmin.upsert({
+      where: { email },
+      update: {},
+      create: {
+        email,
+        passwordHash,
+        firstName: 'Platform',
+        lastName: 'Owner',
+        role: 'OWNER',
+        isActive: true,
+      },
+    });
 
-  console.log(`Platform admin seeded: ${admin.email} (${admin.role})`);
+    console.log(`Platform admin seeded: ${admin.email} (${admin.role})`);
+  } finally {
+    await prisma.$disconnect();
+  }
 }
 
 if (require.main === module) {
