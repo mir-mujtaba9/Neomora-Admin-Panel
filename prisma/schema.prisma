@@ -722,3 +722,26 @@ model StaffNote {
   @@index([tenantId, participantId])
   @@map("staff_notes")
 }
+
+// ─────────────────────────────────────────────
+// PLATFORM ADMINS
+// ─────────────────────────────────────────────
+
+enum PlatformRole {
+  OWNER
+  SUPER_ADMIN
+  SUPPORT
+}
+
+model PlatformAdmin {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  firstName    String
+  lastName     String?
+  role         PlatformRole
+  isActive     Boolean  @default(true)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
